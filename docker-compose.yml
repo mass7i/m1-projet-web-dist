@@ -1,0 +1,54 @@
+version: '3'
+services:
+  api-mongo:
+    image: mongo:3.6.3
+    container_name: api-mongo
+    ports:
+      - 27017:27017
+    command: --smallfiles
+  
+  discovery:
+    image: massiimmoun/service-discovery
+    container_name: service-discovery
+    build:
+      context: ./registry
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+
+  responsableemf:
+    image: massiimmoun/service-responsableemf-api
+    container_name: service-emfresponsable
+    build:
+      context: ./emfresponsable
+      dockerfile: Dockerfile
+    ports:
+      - "8762:8762"
+    links:
+      - discovery:discovery
+      - api-mongo
+
+  emf:
+    image: massiimmoun/service-emf-api
+    container_name: service-emf
+    build:
+      context: ./emfapp
+      dockerfile: Dockerfile
+    ports:
+      - "8763:8763"
+    
+    links:
+      - discovery:discovery
+
+  emffront:
+    image: massiimmoun/service-emf-front
+    container_name: service-emf-front
+    build:
+      context: ./emf-client
+      dockerfile: Dockerfile
+    ports:
+      - "80:9090"
+    
+    
+
+
